@@ -76,39 +76,45 @@ def ConstraintsSatisfationProblem(course_prof_dict):
 
 def ModifiedConstraintsSatisfationProblem(course_prof_dict):
     global time_table
-    available_slots = []
+    available_slots = []            #stores available time slots as (day,time,room)
 
     for i in range(0, R):
         for j in range(0,C):
             for k in range(0, N):
                 available_slots.append((i,j,k))
 
-    no_of_lectures = 2*M
+    no_of_lectures = 2*M            #each course has 2 lectures
     course_day = {}
     prof_day_slot = {}
 
     for i in range(1, M+1):
-        course_day[i] = -1
+        course_day[i] = -1          #dictionary to map the day when one of the 2 letures is scheduled for a course
 
     for i in range(1, P+1):
-        prof_day_slot[i] = []
+        prof_day_slot[i] = []       #dictionary to map a profs's schedule as (day,time), i.e. the prof is busy at (day,time)
 
     lecture = 1
     while no_of_lectures>0:
         random.shuffle(available_slots)
         i,j,k = available_slots[0]
+        '''
+        Condition 1 [if]: Check if no lecture for the course has been scheduled so far and 
+                     if the prof for the course is not busy during the (day,time) slot 
+        Condition 2 [elif, if]: Check if the a lecture for the course has not been scheduled the same day and
+                                if the prof for the course is not busy during the (day,time) slot
+        '''
         if course_day[lecture] == -1 and (i,j) not in prof_day_slot[course_prof_dict[lecture]]:
             time_table[i][j][k] = lecture
             course_day[lecture] = i
-            prof_day_slot[course_prof_dict[lecture]].append((i,j))
-            available_slots.remove((i,j,k))
+            prof_day_slot[course_prof_dict[lecture]].append((i,j))         #prof is busy at (day,time) now
+            available_slots.remove((i,j,k))                                #slot not available anymore
         elif course_day[lecture] != -1 and (i,j) not in prof_day_slot[course_prof_dict[lecture]]:
             day = course_day[lecture]
             if i!=day:
                 time_table[i][j][k] = lecture
                 course_day[lecture] = i
-                prof_day_slot[course_prof_dict[lecture]].append((i, j))
-                available_slots.remove((i,j,k))
+                prof_day_slot[course_prof_dict[lecture]].append((i, j))         #prof is busy at (day,time) now
+                available_slots.remove((i,j,k))                                 #slot not available anymore
             else:
                 continue
         else:
